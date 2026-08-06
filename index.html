@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SHRED — Downhill MTB</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1a2f23">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; background: #10241b; }
+  body {
+    font-family: "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+    color: #fff;
+    -webkit-user-select: none; user-select: none;
+    touch-action: none;
+  }
+
+  /* ---------- title screen ---------- */
+  #title-screen {
+    position: fixed; inset: 0; z-index: 50;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: linear-gradient(#8ec8e8 0%, #cfe6d8 38%, #7fae7a 55%, #4c7a52 70%, #23402e 100%);
+    overflow: hidden;
+  }
+  .mtn { position: absolute; left: 0; right: 0; width: 100%; pointer-events: none; }
+  #m-far  { bottom: 34%; opacity: .55; }
+  #m-mid  { bottom: 22%; opacity: .8; }
+  #m-near { bottom: 0; }
+  #sun {
+    position: absolute; top: 9%; right: 14%;
+    width: min(15vw, 110px); height: min(15vw, 110px); border-radius: 50%;
+    background: radial-gradient(circle, #fffbe8 0%, #ffe9a8 55%, rgba(255,233,168,0) 72%);
+    box-shadow: 0 0 80px 40px rgba(255, 240, 190, .55);
+  }
+  #title-card { position: relative; text-align: center; z-index: 2; padding: 0 16px; }
+  #title-kicker {
+    font-size: clamp(13px, 2.6vw, 19px);
+    letter-spacing: .55em; text-indent: .55em;
+    text-transform: uppercase; color: #eaf6ee;
+    text-shadow: 0 2px 8px rgba(10, 30, 18, .6);
+    margin-bottom: 6px;
+  }
+  #title-word {
+    font-size: clamp(64px, 17vw, 168px);
+    font-weight: 900; font-stretch: condensed; line-height: .92;
+    letter-spacing: .02em;
+    color: #fff;
+    text-shadow: 0 3px 0 #c8551e, 0 6px 0 #93390f, 0 14px 30px rgba(15, 35, 20, .65);
+    transform: skewX(-6deg);
+  }
+  #title-sub {
+    margin-top: 10px;
+    font-size: clamp(14px, 3vw, 22px);
+    letter-spacing: .35em; text-indent: .35em; text-transform: uppercase;
+    color: #ffe9c4; text-shadow: 0 2px 8px rgba(10, 30, 18, .7);
+  }
+  #ride-btn {
+    margin-top: clamp(26px, 6vh, 54px);
+    font: inherit; font-weight: 900; font-size: clamp(20px, 4.5vw, 30px);
+    letter-spacing: .28em; text-indent: .28em; text-transform: uppercase;
+    color: #16321f;
+    background: linear-gradient(#ffe083, #f7a833);
+    border: 0; border-radius: 999px;
+    padding: .7em 1.6em;
+    box-shadow: 0 6px 0 #a05c12, 0 14px 30px rgba(10, 25, 15, .5);
+    cursor: pointer;
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  #ride-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #a05c12; }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.045); } }
+  #title-hint {
+    margin-top: 16px; font-size: clamp(11px, 2.2vw, 14px);
+    letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.85);
+    text-shadow: 0 1px 6px rgba(10,30,18,.7);
+  }
+  #title-status {
+    position: absolute; bottom: max(12px, env(safe-area-inset-bottom)); left: 0; right: 0;
+    text-align: center; font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: rgba(255,255,255,.75); text-shadow: 0 1px 4px rgba(10,30,18,.8);
+    z-index: 2;
+  }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div id="title-screen">
+  <div id="sun"></div>
+  <svg id="m-far" class="mtn" viewBox="0 0 1440 320" preserveAspectRatio="none" style="height:36%">
+    <path fill="#9db8c9" d="M0,240 L120,150 L230,210 L360,90 L470,180 L600,60 L730,190 L860,110 L980,200 L1120,80 L1250,190 L1360,140 L1440,200 L1440,320 L0,320 Z"/>
+    <path fill="#eef6fa" d="M352,97 L360,90 L368,97 L360,104 Z M592,68 L600,60 L610,70 L600,78 Z M1112,88 L1120,80 L1130,90 L1120,98 Z"/>
+  </svg>
+  <svg id="m-mid" class="mtn" viewBox="0 0 1440 320" preserveAspectRatio="none" style="height:42%">
+    <path fill="#4f7d63" d="M0,290 L150,170 L300,250 L430,120 L560,230 L700,100 L840,240 L990,140 L1130,250 L1270,150 L1440,260 L1440,320 L0,320 Z"/>
+  </svg>
+  <svg id="m-near" class="mtn" viewBox="0 0 1440 260" preserveAspectRatio="none" style="height:34%">
+    <path fill="#1d3a28" d="M0,260 L0,190 L90,205 L200,150 L330,210 L460,160 L600,220 L750,140 L900,215 L1050,165 L1200,225 L1330,180 L1440,215 L1440,260 Z"/>
+    <!-- pine silhouettes -->
+    <g fill="#132b1c">
+      <path d="M120,205 L134,150 L148,205 Z M128,168 L134,140 L140,168 Z"/>
+      <path d="M410,190 L426,120 L442,190 Z M418,145 L426,110 L434,145 Z"/>
+      <path d="M700,195 L716,125 L732,195 Z M708,150 L716,115 L724,150 Z"/>
+      <path d="M1010,200 L1024,145 L1038,200 Z M1017,163 L1024,135 L1031,163 Z"/>
+      <path d="M1290,205 L1304,155 L1318,205 Z"/>
+    </g>
+  </svg>
+
+  <div id="title-card">
+    <div id="title-kicker">Ride the line &middot; Send the jumps</div>
+    <div id="title-word">SHRED</div>
+    <div id="title-sub">Downhill Mountain Biking</div>
+    <button id="ride-btn">Ride</button>
+    <div id="title-hint">Steer: A / D or &larr; &rarr; &nbsp;&middot;&nbsp; Jump: Space &nbsp;&middot;&nbsp; Touch: drag to steer, tap to jump</div>
+  </div>
+  <div id="title-status">Trail crew is still building the mountain &mdash; game loading here soon</div>
+</div>
+
+<script>
+  // Game code will be wired in here in upcoming commits. For now the title screen
+  // stands alone so the deploy can be previewed immediately.
+  document.getElementById('ride-btn').addEventListener('click', function () {
+    var s = document.getElementById('title-status');
+    s.textContent = 'The trail opens in the next commit — hang tight!';
+  });
+</script>
+</body>
+</html>
