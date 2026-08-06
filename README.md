@@ -9,7 +9,7 @@ the jumps, conquer the mountain. See `game.md` for the design brief.
 
 | Action | Keyboard | Touch |
 | --- | --- | --- |
-| Steer | A / D or ← → | drag anywhere |
+| Steer | A / D or ← → | drag anywhere, or tilt the phone |
 | Pedal (speed) | W / ↑ / Shift | hold PEDAL |
 | Bunny hop | Space | tap SEND |
 | Brake | S / ↓ | hold BRAKE |
@@ -17,6 +17,11 @@ the jumps, conquer the mountain. See `game.md` for the design brief.
 
 Top speed is gradient-realistic: ~25 mph descending, ~16 mph on the flat,
 ~6 mph grinding uphill — pedal hard into the punch climb before the finish.
+
+On phones, the STEERING toggle (title or results screen) switches between
+drag and accelerometer tilt. Tilt needs HTTPS; iOS shows a one-tap motion
+permission prompt. Neutral recalibrates to how you're holding the phone at
+the start of every run.
 
 ## The course
 

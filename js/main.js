@@ -523,6 +523,7 @@ const touchUI = document.getElementById('touch-ui');
 
 function startGame() {
   audio.unlock();
+  input.calibrateTilt(); // neutral steer = however the phone is held right now
   titleScreen.classList.add('hidden');
   resultsEl.classList.add('hidden');
   hudRoot.classList.remove('hidden');
@@ -558,6 +559,40 @@ function finishRun() {
 
 document.getElementById('ride-btn').addEventListener('click', startGame);
 document.getElementById('again-btn').addEventListener('click', startGame);
+
+// ---- steering mode toggle (mobile): drag vs accelerometer tilt ------------
+const tiltBtns = [document.getElementById('tilt-btn'), document.getElementById('tilt-btn2')];
+function refreshTiltBtns() {
+  const on = input.tilt.enabled;
+  tiltBtns.forEach((b) => {
+    b.textContent = on ? 'STEERING: TILT' : 'STEERING: DRAG';
+    b.classList.toggle('on', on);
+  });
+}
+if (isMobile && input.tilt.supported) {
+  tiltBtns.forEach((b) => {
+    b.classList.remove('hidden');
+    b.addEventListener('click', async () => {
+      if (input.tilt.enabled) {
+        input.disableTilt();
+      } else if (!(await input.enableTilt())) {
+        // permission denied or sensor missing — stay on drag
+        b.textContent = 'TILT UNAVAILABLE';
+        setTimeout(refreshTiltBtns, 1600);
+        return;
+      } else {
+        hud.popup('TILT STEERING ON', 'good');
+      }
+      refreshTiltBtns();
+    });
+  });
+  // Android (no permission prompt needed): restore a saved preference silently.
+  if (localStorage.getItem('shred_tilt') === 'true' &&
+      typeof DeviceOrientationEvent.requestPermission !== 'function') {
+    input.enableTilt().then(refreshTiltBtns);
+  }
+  refreshTiltBtns();
+}
 document.getElementById('mute-btn').addEventListener('click', (e) => {
   const m = audio.toggleMute();
   e.currentTarget.textContent = m ? 'SOUND: OFF' : 'SOUND: ON';

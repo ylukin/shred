@@ -83,6 +83,13 @@
     border: 1px solid rgba(255,255,255,.4); border-radius: 999px;
     padding: 6px 14px; cursor: pointer;
   }
+  .pill-btn {
+    font: inherit; font-size: clamp(12px, 2.4vw, 15px); font-weight: bold; letter-spacing: .15em;
+    color: #fff; background: rgba(10, 25, 15, .45);
+    border: 1px solid rgba(255,255,255,.5); border-radius: 999px;
+    padding: 8px 18px; cursor: pointer;
+  }
+  .pill-btn.on { background: rgba(255, 210, 87, .85); color: #16321f; border-color: #ffd257; }
 
   /* ---------- HUD ---------- */
   #hud { position: fixed; inset: 0; z-index: 20; pointer-events: none; }
@@ -205,8 +212,11 @@
     <div id="title-word">SHRED</div>
     <div id="title-sub">Downhill Mountain Biking</div>
     <button id="ride-btn" class="big-btn">Ride</button>
-    <div id="title-best" style="margin-top:14px;font-size:clamp(13px,2.6vw,17px);font-weight:900;letter-spacing:.22em;color:#3ddc78;text-shadow:0 1px 6px rgba(10,30,18,.7)"></div>
-    <div id="title-hint">Steer: A / D or &larr; &rarr; &nbsp;&middot;&nbsp; Pedal: W / &uarr; &nbsp;&middot;&nbsp; Brake: S / &darr; &nbsp;&middot;&nbsp; Hop: Space<br>Touch: drag to steer &middot; hold PEDAL for speed &middot; SEND to hop &middot; BRAKE to slow</div>
+    <div style="margin-top:14px">
+      <button id="tilt-btn" class="pill-btn hidden">STEERING: DRAG</button>
+    </div>
+    <div id="title-best" style="margin-top:12px;font-size:clamp(13px,2.6vw,17px);font-weight:900;letter-spacing:.22em;color:#3ddc78;text-shadow:0 1px 6px rgba(10,30,18,.7)"></div>
+    <div id="title-hint">Steer: A / D or &larr; &rarr; &nbsp;&middot;&nbsp; Pedal: W / &uarr; &nbsp;&middot;&nbsp; Brake: S / &darr; &nbsp;&middot;&nbsp; Hop: Space<br>Touch: drag or tilt to steer &middot; hold PEDAL for speed &middot; SEND to hop &middot; BRAKE to slow</div>
   </div>
   <button id="mute-btn">SOUND: ON</button>
 </div>
@@ -257,6 +267,9 @@
   <div id="res-best"></div>
   <div id="res-style"></div>
   <button id="again-btn" class="big-btn">Ride Again</button>
+  <div style="margin-top:16px">
+    <button id="tilt-btn2" class="pill-btn hidden">STEERING: DRAG</button>
+  </div>
 </div>
 
 <script type="importmap">

@@ -136,3 +136,21 @@ Working notes for the 3D downhill mountain biking browser game. Appended as I go
   autopilot reference run is 1:17.6, clean, all sections).
 - Course is now 834 m; world.js trackside-tape segment table updated for the
   inserted segment.
+
+## 2026-08-06 — Tilt steering on mobile
+
+- Accelerometer steering via the `deviceorientation` event — fully compatible
+  with static-file hosting (no server code; only needs HTTPS, which sensor
+  APIs require anyway).
+- STEERING: DRAG/TILT toggle on the title and results screens, shown only on
+  touch devices that expose DeviceOrientationEvent. Preference persists; on
+  Android it re-enables silently, on iOS the toggle tap doubles as the
+  required user-gesture for DeviceOrientationEvent.requestPermission().
+- Mapping handles all four screen orientations (gamma in portrait, ±beta in
+  landscape). 1.5° deadzone, full lock at ~16.5°, neutral auto-calibrates to
+  the phone pose at the start of each run (and drag steering is disabled while
+  tilt is active so the two schemes can't fight).
+- Verified in emulated mobile Chromium with synthetic DeviceOrientationEvents:
+  toggle enable/disable, baseline calibration, left/right steer values, drag
+  correctly ignored in tilt mode, and a 2 s tilt-right during a live run moving
+  the rider 5.6 m across the trail.
