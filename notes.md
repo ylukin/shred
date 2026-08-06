@@ -95,3 +95,14 @@ Working notes for the 3D downhill mountain biking browser game. Appended as I go
 - Added README with controls, course guide, and tech notes.
 - Final regression: full autopilot run clean in ~51 s, all 8 section types hit,
   zero console errors; mobile portrait/landscape verified.
+
+## 2026-08-06 — Texture generation attempt 2
+
+- Egress to api.openai.com now allowed (thanks!). Node's built-in fetch ignores
+  HTTPS_PROXY, so the script needs NODE_USE_ENV_PROXY=1 +
+  NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt in remote sessions — documented
+  in the script header.
+- Request now reaches OpenAI but fails with HTTP 429 `credit_balance_exhausted`:
+  the API account has no credits remaining. Once credits are added, rerun
+  `tools/generate-textures.mjs` and commit `assets/textures/*.jpg` — the game
+  picks them up automatically.

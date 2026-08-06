@@ -5,9 +5,10 @@
 //
 // Usage:  OPENAI_API_KEY=sk-... node tools/generate-textures.mjs
 //
-// Note: requires network access to api.openai.com. (The remote session that
-// built this game had that host blocked by egress policy, which is why these
-// files aren't committed — run this locally once and commit the results.)
+// In a Claude Code remote session (outbound HTTPS via the agent proxy), run:
+//   NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt \
+//     node tools/generate-textures.mjs
+// (Node's built-in fetch ignores HTTPS_PROXY unless NODE_USE_ENV_PROXY is set.)
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
