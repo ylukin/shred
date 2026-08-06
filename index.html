@@ -14,6 +14,8 @@
     -webkit-user-select: none; user-select: none;
     touch-action: none;
   }
+  #game-canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  .hidden { display: none !important; }
 
   /* ---------- title screen ---------- */
   #title-screen {
@@ -54,7 +56,7 @@
     letter-spacing: .35em; text-indent: .35em; text-transform: uppercase;
     color: #ffe9c4; text-shadow: 0 2px 8px rgba(10, 30, 18, .7);
   }
-  #ride-btn {
+  .big-btn {
     margin-top: clamp(26px, 6vh, 54px);
     font: inherit; font-weight: 900; font-size: clamp(20px, 4.5vw, 30px);
     letter-spacing: .28em; text-indent: .28em; text-transform: uppercase;
@@ -66,24 +68,117 @@
     cursor: pointer;
     animation: pulse 1.8s ease-in-out infinite;
   }
-  #ride-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #a05c12; }
+  .big-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #a05c12; }
   @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.045); } }
   #title-hint {
     margin-top: 16px; font-size: clamp(11px, 2.2vw, 14px);
     letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.85);
     text-shadow: 0 1px 6px rgba(10,30,18,.7);
   }
-  #title-status {
-    position: absolute; bottom: max(12px, env(safe-area-inset-bottom)); left: 0; right: 0;
-    text-align: center; font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
-    color: rgba(255,255,255,.75); text-shadow: 0 1px 4px rgba(10,30,18,.8);
-    z-index: 2;
+  #mute-btn {
+    position: absolute; top: max(10px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right));
+    z-index: 3;
+    font: inherit; font-size: 12px; font-weight: bold; letter-spacing: .15em;
+    color: #fff; background: rgba(10, 25, 15, .4);
+    border: 1px solid rgba(255,255,255,.4); border-radius: 999px;
+    padding: 6px 14px; cursor: pointer;
   }
-  .hidden { display: none !important; }
+
+  /* ---------- HUD ---------- */
+  #hud { position: fixed; inset: 0; z-index: 20; pointer-events: none; }
+  .hud-label {
+    font-size: clamp(11px, 2vw, 15px); font-weight: bold;
+    letter-spacing: .28em; text-transform: uppercase; opacity: .95;
+    text-shadow: 0 1px 5px rgba(0,0,0,.7);
+  }
+  .hud-big {
+    font-size: clamp(26px, 5.6vw, 44px); font-weight: 900; line-height: 1.02;
+    text-shadow: 0 2px 8px rgba(0,0,0,.7);
+    font-variant-numeric: tabular-nums;
+  }
+  #hud-tl { position: absolute; top: max(12px, env(safe-area-inset-top)); left: max(14px, env(safe-area-inset-left)); }
+  #hud-best-label { margin-top: 6px; font-size: clamp(9px, 1.6vw, 12px); }
+  #hud-best { color: #3ddc78; font-size: clamp(15px, 3vw, 22px); font-weight: 900; text-shadow: 0 1px 6px rgba(0,0,0,.7); font-variant-numeric: tabular-nums; }
+  #hud-tr { position: absolute; top: max(12px, env(safe-area-inset-top)); right: max(14px, env(safe-area-inset-right)); text-align: right; }
+  #hud-style { color: #ffd257; font-size: clamp(13px, 2.4vw, 18px); font-weight: 900; text-shadow: 0 1px 6px rgba(0,0,0,.7); margin-top: 4px; }
+  #hud-bl { position: absolute; bottom: max(12px, env(safe-area-inset-bottom)); left: max(14px, env(safe-area-inset-left)); }
+  #minimap { width: clamp(84px, 17vw, 150px); height: clamp(84px, 17vw, 150px); }
+  #hud-br {
+    position: absolute; bottom: max(12px, env(safe-area-inset-bottom)); right: max(14px, env(safe-area-inset-right));
+    width: clamp(92px, 19vw, 160px); text-align: center;
+  }
+  #speedo { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #hud-br .stack { position: relative; width: 100%; aspect-ratio: 1; }
+  #hud-speed { font-size: clamp(30px, 6.4vw, 52px); font-weight: 900; line-height: 1; text-shadow: 0 2px 8px rgba(0,0,0,.75); font-variant-numeric: tabular-nums; }
+  #hud-speed-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  #hud-mph { font-size: clamp(10px, 1.8vw, 14px); letter-spacing: .3em; font-weight: bold; opacity: .9; text-shadow: 0 1px 5px rgba(0,0,0,.7); }
+  #hud-gear { margin-top: 2px; font-size: clamp(10px, 1.8vw, 14px); letter-spacing: .2em; font-weight: bold; opacity: .95; text-shadow: 0 1px 5px rgba(0,0,0,.7); }
+
+  /* popups */
+  #popups {
+    position: absolute; top: 24%; left: 0; right: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    pointer-events: none;
+  }
+  .popup {
+    font-size: clamp(22px, 5vw, 40px); font-weight: 900;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: #fff; text-shadow: 0 3px 10px rgba(0,0,0,.6);
+    opacity: 0; transform: scale(.6) rotate(-3deg);
+    transition: all .18s cubic-bezier(.2, 1.6, .4, 1);
+  }
+  .popup.show { opacity: 1; transform: scale(1) rotate(-3deg); }
+  .popup.gone { opacity: 0; transform: scale(1.15) translateY(-24px) rotate(-3deg); transition: all .45s ease; }
+  .popup.good { color: #ffd257; }
+  .popup.warn { color: #ffa63c; }
+  .popup.bad  { color: #ff5a3c; }
+
+  /* countdown */
+  #countdown {
+    position: fixed; inset: 0; z-index: 30;
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(90px, 26vw, 220px); font-weight: 900;
+    color: #ffd257; text-shadow: 0 6px 24px rgba(0,0,0,.6);
+    pointer-events: none;
+  }
+
+  /* results */
+  #results {
+    position: fixed; inset: 0; z-index: 40;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(8, 18, 12, .62); backdrop-filter: blur(3px);
+    text-align: center; padding: 0 16px;
+  }
+  #res-medal { font-size: clamp(18px, 4vw, 28px); letter-spacing: .4em; text-indent: .4em; font-weight: bold; color: #ffd257; text-transform: uppercase; }
+  #res-time { font-size: clamp(52px, 13vw, 110px); font-weight: 900; font-variant-numeric: tabular-nums; text-shadow: 0 4px 18px rgba(0,0,0,.6); }
+  #res-best { font-size: clamp(16px, 3.4vw, 24px); font-weight: bold; letter-spacing: .18em; color: #cfe6d8; }
+  .res-new-best { color: #3ddc78 !important; animation: pulse .9s ease-in-out infinite; }
+  #res-style { margin-top: 6px; font-size: clamp(14px, 3vw, 20px); font-weight: 900; color: #ffd257; letter-spacing: .15em; }
+
+  /* ---------- touch controls ---------- */
+  #touch-ui { position: fixed; inset: 0; z-index: 25; }
+  #touch-steer { position: absolute; inset: 0; }
+  .touch-btn {
+    position: absolute; bottom: calc(max(14px, env(safe-area-inset-bottom)) + clamp(92px, 19vw, 160px) + 14px);
+    width: clamp(68px, 16vw, 96px); height: clamp(68px, 16vw, 96px);
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.55);
+    background: rgba(15, 30, 20, .4);
+    color: #fff; font: inherit; font-weight: 900;
+    font-size: clamp(11px, 2.4vw, 15px); letter-spacing: .12em;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: auto;
+  }
+  .touch-btn.pressed { background: rgba(255, 210, 87, .55); border-color: #ffd257; color: #16321f; }
+  #btn-jump { right: max(16px, env(safe-area-inset-right)); }
+  #btn-brake { left: max(16px, env(safe-area-inset-left)); bottom: calc(max(14px, env(safe-area-inset-bottom)) + clamp(84px, 17vw, 150px) + 14px); }
 </style>
 </head>
 <body>
 
+<canvas id="game-canvas"></canvas>
+
+<!-- title -->
 <div id="title-screen">
   <div id="sun"></div>
   <svg id="m-far" class="mtn" viewBox="0 0 1440 320" preserveAspectRatio="none" style="height:36%">
@@ -95,7 +190,6 @@
   </svg>
   <svg id="m-near" class="mtn" viewBox="0 0 1440 260" preserveAspectRatio="none" style="height:34%">
     <path fill="#1d3a28" d="M0,260 L0,190 L90,205 L200,150 L330,210 L460,160 L600,220 L750,140 L900,215 L1050,165 L1200,225 L1330,180 L1440,215 L1440,260 Z"/>
-    <!-- pine silhouettes -->
     <g fill="#132b1c">
       <path d="M120,205 L134,150 L148,205 Z M128,168 L134,140 L140,168 Z"/>
       <path d="M410,190 L426,120 L442,190 Z M418,145 L426,110 L434,145 Z"/>
@@ -109,19 +203,62 @@
     <div id="title-kicker">Ride the line &middot; Send the jumps</div>
     <div id="title-word">SHRED</div>
     <div id="title-sub">Downhill Mountain Biking</div>
-    <button id="ride-btn">Ride</button>
-    <div id="title-hint">Steer: A / D or &larr; &rarr; &nbsp;&middot;&nbsp; Jump: Space &nbsp;&middot;&nbsp; Touch: drag to steer, tap to jump</div>
+    <button id="ride-btn" class="big-btn">Ride</button>
+    <div id="title-hint">Steer: A / D or &larr; &rarr; &nbsp;&middot;&nbsp; Tuck: W / &uarr; &nbsp;&middot;&nbsp; Brake: S / &darr; &nbsp;&middot;&nbsp; Hop: Space<br>Touch: drag to steer &middot; SEND to hop &middot; BRAKE to slow</div>
   </div>
-  <div id="title-status">Trail crew is still building the mountain &mdash; game loading here soon</div>
+  <button id="mute-btn">SOUND: ON</button>
 </div>
 
-<script>
-  // Game code will be wired in here in upcoming commits. For now the title screen
-  // stands alone so the deploy can be previewed immediately.
-  document.getElementById('ride-btn').addEventListener('click', function () {
-    var s = document.getElementById('title-status');
-    s.textContent = 'The trail opens in the next commit — hang tight!';
-  });
+<!-- HUD -->
+<div id="hud" class="hidden">
+  <div id="hud-tl">
+    <div class="hud-label">Time</div>
+    <div id="hud-time" class="hud-big">00:00.000</div>
+    <div id="hud-best-label" class="hud-label">Best</div>
+    <div id="hud-best">--:--.---</div>
+  </div>
+  <div id="hud-tr">
+    <div class="hud-label">Progress</div>
+    <div id="hud-progress" class="hud-big">0%</div>
+    <div id="hud-style"></div>
+  </div>
+  <div id="hud-bl">
+    <canvas id="minimap" width="150" height="150"></canvas>
+  </div>
+  <div id="hud-br">
+    <div class="stack">
+      <canvas id="speedo" width="160" height="160"></canvas>
+      <div id="hud-speed-wrap">
+        <div id="hud-speed">0</div>
+        <div id="hud-mph">MPH</div>
+        <div id="hud-gear">1 GEAR</div>
+      </div>
+    </div>
+  </div>
+  <div id="popups"></div>
+</div>
+
+<!-- touch controls -->
+<div id="touch-ui" class="hidden">
+  <div id="touch-steer"></div>
+  <button class="touch-btn" id="btn-jump">SEND</button>
+  <button class="touch-btn" id="btn-brake">BRAKE</button>
+</div>
+
+<div id="countdown" class="hidden"></div>
+
+<!-- results -->
+<div id="results" class="hidden">
+  <div id="res-medal">FINISHED</div>
+  <div id="res-time">--:--.---</div>
+  <div id="res-best"></div>
+  <div id="res-style"></div>
+  <button id="again-btn" class="big-btn">Ride Again</button>
+</div>
+
+<script type="importmap">
+  { "imports": { "three": "./vendor/three.module.min.js" } }
 </script>
+<script type="module" src="js/main.js"></script>
 </body>
 </html>
