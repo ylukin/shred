@@ -218,6 +218,51 @@ function makeConfetti() {
 }
 const confetti = makeConfetti();
 
+// Dust kicked up behind the rear wheel at speed.
+function makeDust() {
+  const N = 140;
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(N * 3).fill(0);
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const mat = new THREE.PointsMaterial({
+    color: 0xa98c63, size: 0.5, transparent: true, opacity: 0.5,
+    map: TEX.makeSoftCircle('#c9b08a'), depthWrite: false,
+  });
+  const points = new THREE.Points(geo, mat);
+  points.frustumCulled = false;
+  scene.add(points);
+  const vel = Array.from({ length: N }, () => new THREE.Vector3());
+  const life = new Float32Array(N).fill(0);
+  let head = 0;
+  return {
+    update(dt) {
+      // emit while grounded and moving
+      if (!P.air && P.v > 7 && state === 'riding') {
+        const emitN = P.v > 16 ? 3 : 1;
+        for (let e = 0; e < emitN; e++) {
+          const i = head = (head + 1) % N;
+          const back = track.dirAt(P.s, tmpV).multiplyScalar(-0.7);
+          pos[i * 3] = riderRig.group.position.x + back.x + (Math.random() - 0.5) * 0.3;
+          pos[i * 3 + 1] = riderRig.group.position.y + 0.15;
+          pos[i * 3 + 2] = riderRig.group.position.z + back.z + (Math.random() - 0.5) * 0.3;
+          vel[i].set((Math.random() - 0.5) * 1.4, 0.9 + Math.random() * 1.4, (Math.random() - 0.5) * 1.4).addScaledVector(back, P.v * 0.12);
+          life[i] = 0.9;
+        }
+      }
+      for (let i = 0; i < N; i++) {
+        if (life[i] <= 0) { pos[i * 3 + 1] = -999; continue; }
+        life[i] -= dt;
+        vel[i].y += 1.2 * dt; // dust billows up
+        pos[i * 3] += vel[i].x * dt;
+        pos[i * 3 + 1] += vel[i].y * dt;
+        pos[i * 3 + 2] += vel[i].z * dt;
+      }
+      geo.attributes.position.needsUpdate = true;
+    },
+  };
+}
+const dust = makeDust();
+
 // ---------------------------------------------------------------------------
 // Best time
 let bestMs = parseFloat(localStorage.getItem('shred_best')) || null;
@@ -558,6 +603,7 @@ function frame(now) {
     marmot.update(dt);
     eagle.update(dt);
     confetti.update(dt);
+    dust.update(dt);
     const surf = track.surface(P.s, P.x);
     audio.ride(P.v, !P.air, !P.air && surf.rough > 0.08);
     hud.update(now, {
@@ -589,6 +635,7 @@ placeRider(0.016);
 requestAnimationFrame(frame);
 
 // Debug hooks for automated testing
+window.__inputProbe = () => ({ steer: input.steer, brake: input.brake, tuck: input.tuck });
 window.__shred = {
   P, track, startGame,
   get state() { return state; },

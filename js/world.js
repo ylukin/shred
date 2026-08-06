@@ -217,7 +217,7 @@ export function buildWorld(scene, track) {
 
   // ---- forest ------------------------------------------------------------
   {
-    const N = 750;
+    const N = 950;
     const trunkGeo = new THREE.CylinderGeometry(0.22, 0.34, 2.6, 5);
     trunkGeo.translate(0, 1.3, 0);
     const cone1 = new THREE.ConeGeometry(2.3, 5.2, 7);
@@ -234,17 +234,27 @@ export function buildWorld(scene, track) {
     const m = new THREE.Matrix4(), q = new THREE.Quaternion(), sc = new THREE.Vector3(), p = new THREE.Vector3();
     const col = new THREE.Color();
     let n = 0;
-    for (let i = 0; i < N * 6 && n < N; i++) {
-      const x = center.x + (rand() * 2 - 1) * TSIZE * 0.48;
-      const z = center.z + (rand() * 2 - 1) * TSIZE * 0.48;
+    for (let i = 0; i < N * 8 && n < N; i++) {
+      // two placement modes: half hug the trail corridor, half fill the map
+      let x, z;
+      if (i % 2 === 0) {
+        const sm = samples[(rand() * samples.length) | 0];
+        const side = rand() < 0.5 ? -1 : 1;
+        const off = 8 + rand() * 42;
+        x = sm.pos.x + sm.right.x * side * off + (rand() - 0.5) * 8;
+        z = sm.pos.z + sm.right.z * side * off + (rand() - 0.5) * 8;
+      } else {
+        x = center.x + (rand() * 2 - 1) * TSIZE * 0.48;
+        z = center.z + (rand() * 2 - 1) * TSIZE * 0.48;
+      }
       const { d } = nearestTrackDist(x, z);
-      if (d < 7.5) continue;                       // keep the trail corridor open
+      if (d < 6.5) continue;                       // keep the trail corridor open
       const ld = Math.hypot(x - lakeCenter.x, z - lakeCenter.z);
       if (ld < 95) continue;                       // not in the lake
       const y = world.groundY(x, z);
       if (y < lakeCenter.y + 1) continue;
       const dense = noise.fbm(x * 0.01, z * 0.01, 3);
-      if (rand() > dense * 1.25) continue;         // clump into groves
+      if (i % 2 === 1 && rand() > dense * 1.25) continue; // clump far trees into groves
       const k = 0.7 + rand() * (d < 20 ? 0.5 : 0.9);
       q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), rand() * Math.PI * 2);
       sc.set(k, k * (0.85 + rand() * 0.4), k);
@@ -391,7 +401,7 @@ export function buildWorld(scene, track) {
         tex.needsUpdate = true;
         tex.repeat.set(len / 2.4, 0.28);
         tex.offset.set(0, 0.36);
-        const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ map: tex, side: THREE.DoubleSide, transparent: true }));
+        const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide }));
         mesh.position.copy(a).lerp(b, 0.5);
         tmp2.copy(b).sub(a).normalize();
         mesh.quaternion.setFromUnitVectors(X_AXIS, tmp2);
@@ -433,10 +443,10 @@ export function buildWorld(scene, track) {
       const surf = track.surface(s, 0);
       const w = surf.width + 2.2;
       const g = new THREE.Group();
-      const legGeo = new THREE.CylinderGeometry(0.16, 0.2, 4.4, 8);
+      const legGeo = new THREE.CylinderGeometry(0.16, 0.2, 6.5, 8);
       for (const sx of [-w, w]) {
         const leg = new THREE.Mesh(legGeo, archMat);
-        leg.position.set(sx, 2.2, 0);
+        leg.position.set(sx, 1.5, 0); // long legs sunk into the hillside
         g.add(leg);
       }
       const beam = new THREE.Mesh(new THREE.BoxGeometry(w * 2 + 0.6, 1.0, 0.35), new THREE.MeshLambertMaterial({ map: TEX.makeBanner(label, bg, fg) }));

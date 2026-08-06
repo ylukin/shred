@@ -13,22 +13,22 @@ export const SECTION = {
 // Each segment: length (m), curvature start/end (rad/m, + turns right),
 // grade (dy per metre, negative = downhill), half width, section type.
 const SEGMENTS = [
-  { len: 26, c0: 0, c1: 0, grade: -0.055, w: 4.0, type: SECTION.START },
-  { len: 55, c0: 0.008, c1: -0.010, grade: -0.085, w: 4.0, type: SECTION.FLOW },
-  { len: 45, c0: -0.010, c1: 0.012, grade: -0.09, w: 4.0, type: SECTION.FLOW },
-  { len: 42, c0: 0.052, c1: 0.052, grade: -0.05, w: 4.4, type: SECTION.BERM },  // big right berm
-  { len: 45, c0: -0.006, c1: -0.006, grade: -0.10, w: 4.0, type: SECTION.FLOW }, // rollers here
-  { len: 40, c0: -0.055, c1: -0.055, grade: -0.05, w: 4.4, type: SECTION.BERM }, // big left berm
-  { len: 34, c0: 0.004, c1: 0.010, grade: -0.10, w: 4.0, type: SECTION.FLOW },
-  { len: 70, c0: 0.010, c1: -0.012, grade: -0.105, w: 4.2, type: SECTION.ROCKS },
-  { len: 55, c0: -0.020, c1: -0.020, grade: -0.075, w: 4.2, type: SECTION.FLOW }, // sweeper
-  { len: 105, c0: 0.002, c1: 0.002, grade: -0.075, w: 4.6, type: SECTION.JUMPS }, // jump line
-  { len: 48, c0: 0.030, c1: 0.030, grade: -0.05, w: 4.4, type: SECTION.BERM },
-  { len: 55, c0: 0.000, c1: 0.000, grade: -0.045, w: 2.1, type: SECTION.RIDGE }, // exposed spine
-  { len: 42, c0: -0.005, c1: -0.005, grade: -0.06, w: 4.0, type: SECTION.DROP },  // the drop
-  { len: 50, c0: -0.040, c1: -0.040, grade: -0.06, w: 4.6, type: SECTION.BERM },
-  { len: 50, c0: 0.045, c1: 0.045, grade: -0.06, w: 4.6, type: SECTION.BERM },
-  { len: 68, c0: -0.004, c1: 0.004, grade: -0.075, w: 4.4, type: SECTION.FINISH }, // kicker + arch
+  { len: 26, c0: 0, c1: 0, grade: -0.055, w: 3.2, type: SECTION.START },
+  { len: 55, c0: 0.008, c1: -0.010, grade: -0.085, w: 3.0, type: SECTION.FLOW },
+  { len: 45, c0: -0.010, c1: 0.012, grade: -0.09, w: 3.0, type: SECTION.FLOW },
+  { len: 42, c0: 0.052, c1: 0.052, grade: -0.05, w: 3.6, type: SECTION.BERM },  // big right berm
+  { len: 45, c0: -0.006, c1: -0.006, grade: -0.10, w: 3.2, type: SECTION.FLOW }, // rollers here
+  { len: 40, c0: -0.055, c1: -0.055, grade: -0.05, w: 3.6, type: SECTION.BERM }, // big left berm
+  { len: 34, c0: 0.004, c1: 0.010, grade: -0.10, w: 3.0, type: SECTION.FLOW },
+  { len: 70, c0: 0.010, c1: -0.012, grade: -0.105, w: 3.6, type: SECTION.ROCKS },
+  { len: 55, c0: -0.020, c1: -0.020, grade: -0.075, w: 3.2, type: SECTION.FLOW }, // sweeper
+  { len: 105, c0: 0.002, c1: 0.002, grade: -0.075, w: 4.0, type: SECTION.JUMPS }, // jump line
+  { len: 48, c0: 0.030, c1: 0.030, grade: -0.05, w: 3.6, type: SECTION.BERM },
+  { len: 55, c0: 0.000, c1: 0.000, grade: -0.045, w: 1.9, type: SECTION.RIDGE }, // exposed spine
+  { len: 42, c0: -0.005, c1: -0.005, grade: -0.06, w: 3.4, type: SECTION.DROP },  // the drop
+  { len: 50, c0: -0.040, c1: -0.040, grade: -0.06, w: 3.8, type: SECTION.BERM },
+  { len: 50, c0: 0.045, c1: 0.045, grade: -0.06, w: 3.8, type: SECTION.BERM },
+  { len: 68, c0: -0.004, c1: 0.004, grade: -0.075, w: 3.6, type: SECTION.FINISH }, // kicker + arch
 ];
 
 // Elevation features layered on the base grade. u = s - s0.

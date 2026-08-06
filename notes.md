@@ -67,3 +67,17 @@ Working notes for the 3D downhill mountain biking browser game. Appended as I go
   floated diagonally in the sky (quaternion orientation), ridge section rendered
   as a trench (terrain falloff now keyed to distance-to-ridge-samples, narrow
   carve bench), rock garden scrubbed speed too hard.
+
+## 2026-08-06 — Polish round 1
+
+- Narrowed the trail (half-width 3.0–4.0 m flow/jumps, 1.9 m ridge) — speed
+  reads much better and the tree corridor closes in.
+- Forest: 950 instanced pines, half placed hugging an 8–50 m band along the
+  trail so every section rides through a green corridor (matches reference art).
+- Course tape now unlit MeshBasicMaterial — backside used to render near-black
+  and looked like navy slabs in the sky.
+- Start/finish arch legs lengthened + sunk so they never float on side-slopes.
+- Dust particle trail behind the rear wheel when grounded above ~16 mph.
+- Verified with Playwright: mobile portrait + landscape layouts, touch-drag
+  steering (drag 60 px → steer 0.85), BRAKE/SEND buttons, keyboard steer,
+  grass slowdown, crash + auto-recovery, bunny hop, brake decel.
