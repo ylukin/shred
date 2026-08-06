@@ -81,3 +81,17 @@ Working notes for the 3D downhill mountain biking browser game. Appended as I go
 - Verified with Playwright: mobile portrait + landscape layouts, touch-drag
   steering (drag 60 px → steer 0.85), BRAKE/SEND buttons, keyboard steer,
   grass slowdown, crash + auto-recovery, bunny hop, brake decel.
+
+## 2026-08-06 — Wrap-up round
+
+- Trackside warning banners before the rock garden, ridge line and the drop
+  ("ROCKS AHEAD" / "RIDGE LINE" / "THE DROP") so first-timers get a beat of
+  telegraphing before each crux.
+- Title screen shows your saved best run time.
+- Added `tools/generate-textures.mjs`: one command to generate dirt/grass/rock
+  textures with gpt-image-2 into `assets/textures/` once network egress to
+  api.openai.com is enabled for the environment (retried during this session —
+  still 403 from the egress policy). The game auto-upgrades when files exist.
+- Added README with controls, course guide, and tech notes.
+- Final regression: full autopilot run clean in ~51 s, all 8 section types hit,
+  zero console errors; mobile portrait/landscape verified.

@@ -416,10 +416,16 @@ export function buildWorld(scene, track) {
       ['MARMOT ENERGY', '#1a4a2e', '#ffe9a8'],
       ['FABLE BIKE CO', '#222222', '#8fd0ff'],
     ];
+    const warnings = new Map([
+      [track.segStarts[7] - 6, ['ROCKS AHEAD', '#a31f0e', '#ffe9a8']],
+      [track.segStarts[11] - 5, ['RIDGE LINE', '#a31f0e', '#ffe9a8']],
+      [track.dropS - 10, ['THE DROP', '#a31f0e', '#ffe9a8']],
+    ]);
     let bi = 0;
-    for (const s of [track.segStarts[9] + 5, track.segStarts[9] + 40, track.segStarts[9] + 76, track.segStarts[12] + 8, track.total - 40, track.total - 22]) {
+    for (const s of [track.segStarts[9] + 5, track.segStarts[9] + 40, track.segStarts[9] + 76, track.segStarts[7] - 6, track.segStarts[11] - 5, track.dropS - 10, track.total - 40, track.total - 22]) {
       const side = bi % 2 === 0 ? -1 : 1;
-      const def = bannerDefs[bi++ % bannerDefs.length];
+      const def = warnings.get(s) ?? bannerDefs[bi % bannerDefs.length];
+      bi++;
       const surf = track.surface(s, 0);
       track.worldPos(s, side * (surf.width + 2.6), tmp);
       tmp.y = Math.max(tmp.y, world.groundY(tmp.x, tmp.z));

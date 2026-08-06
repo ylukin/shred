@@ -267,6 +267,7 @@ const dust = makeDust();
 // Best time
 let bestMs = parseFloat(localStorage.getItem('shred_best')) || null;
 hud.setBest(bestMs);
+if (bestMs) document.getElementById('title-best').textContent = `BEST RUN ${formatTime(bestMs)}`;
 
 // ---------------------------------------------------------------------------
 // Physics step
