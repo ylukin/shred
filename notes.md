@@ -106,3 +106,13 @@ Working notes for the 3D downhill mountain biking browser game. Appended as I go
   the API account has no credits remaining. Once credits are added, rerun
   `tools/generate-textures.mjs` and commit `assets/textures/*.jpg` — the game
   picks them up automatically.
+
+## 2026-08-06 — AI textures landed
+
+- Credits added + egress open → generated dirt/grass/rock with gpt-image-2
+  (1024px, ~270–380 KiB each) via tools/generate-textures.mjs and committed
+  them to assets/textures/. Verified in-game with Playwright: the hot-swap
+  loader replaced the procedural canvas fallbacks on load — trail now shows
+  photographic gravel with knobby tread marks, hillsides get real alpine turf
+  with wildflowers, boulders get lichened granite. Fallbacks stay in the code
+  for offline/file:// use.
