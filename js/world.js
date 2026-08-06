@@ -135,7 +135,7 @@ export function buildWorld(scene, track) {
 
   // ---- trail ribbon ------------------------------------------------------
   {
-    const ACROSS = 8; // verts across
+    const ACROSS = 12; // verts across (fine enough to show the ledge-drop edges)
     const verts = [], uvs = [], idx = [];
     const tmp = new THREE.Vector3();
     for (let i = 0; i < samples.length; i++) {
@@ -157,7 +157,7 @@ export function buildWorld(scene, track) {
     for (let i = 0; i < samples.length - 1; i++) {
       for (let j = 0; j < ACROSS; j++) {
         const a = i * stride + j, b = a + 1, c = a + stride, d = c + 1;
-        idx.push(a, c, b, b, c, d);
+        idx.push(a, b, c, b, d, c);
       }
     }
     const geo = new THREE.BufferGeometry();
@@ -479,6 +479,55 @@ export function buildWorld(scene, track) {
     }
     arch(track.startS + 2, 'SHRED DOWNHILL', '#12233d', '#ffd257');
     arch(track.finishS, 'FINISH', '#c23b22', '#ffffff');
+
+    // ---- ledge drops: wooden lip + face boards and B-line signage --------
+    const woodDark = new THREE.MeshLambertMaterial({ color: 0x4a3423 });
+    const woodFace = new THREE.MeshLambertMaterial({ color: 0x5f4630 });
+    function makeSign(text, bg, fg) {
+      const c = document.createElement('canvas');
+      c.width = 256; c.height = 96;
+      const cx = c.getContext('2d');
+      cx.fillStyle = bg; cx.fillRect(0, 0, 256, 96);
+      cx.strokeStyle = fg; cx.lineWidth = 6; cx.strokeRect(6, 6, 244, 84);
+      cx.fillStyle = fg; cx.font = 'bold 40px Arial Narrow, Arial';
+      cx.textAlign = 'center'; cx.textBaseline = 'middle';
+      cx.fillText(text, 128, 52);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.56), new THREE.MeshBasicMaterial({ map: t, side: THREE.DoubleSide }));
+    }
+    track.ledges.forEach((L, li) => {
+      const surf = track.surface(L.s0 - 0.5, 0);
+      const w = surf.width;
+      const dir = track.dirAt(L.s0, new THREE.Vector3());
+      const yaw = Math.atan2(dir.x, dir.z);
+      // lip board across the A-line edge, sitting on the upper deck
+      const lipLen = w + 0.6; // from -w to +0.6
+      const xc = (-w + 0.6) / 2;
+      const lip = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.14, lipLen), woodDark);
+      track.worldPos(L.s0 - 0.35, xc, tmp);
+      lip.position.copy(tmp).y += 0.02;
+      lip.rotation.y = yaw + Math.PI / 2;
+      // face plank filling the vertical drop face
+      const face = new THREE.Mesh(new THREE.BoxGeometry(0.16, L.h, lipLen), woodFace);
+      track.worldPos(L.s0 + 0.55, xc, tmp);
+      const lower = track.surface(L.s0 + 2, xc).y;
+      face.position.set(tmp.x, lower + L.h / 2 - 0.04, tmp.z);
+      face.rotation.y = yaw + Math.PI / 2;
+      furniture.add(lip, face);
+      // signs: DROP badge on the left, B-LINE arrow over the right lane
+      const drop = makeSign(`DROP ${li + 1}`, '#a31f0e', '#ffe9a8');
+      const bline = makeSign('B-LINE →', '#ffd257', '#16321f');
+      for (const [sign, sx] of [[drop, -(w + 1.3)], [bline, w + 1.3]]) {
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 1.6, 6), woodDark);
+        track.worldPos(L.s0 - 12, sx, tmp);
+        tmp.y = Math.max(tmp.y, world.groundY(tmp.x, tmp.z));
+        pole.position.copy(tmp).y += 0.7;
+        sign.position.copy(tmp).y += 1.55;
+        sign.rotation.y = yaw + Math.PI; // face the oncoming rider
+        furniture.add(pole, sign);
+      }
+    });
   }
 
   world.lakeCenter = lakeCenter;

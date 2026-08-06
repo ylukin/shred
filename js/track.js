@@ -76,6 +76,16 @@ export function buildTrack() {
     { s0: dropS0 + 16, fn: (u) => cliff(u, 5.5, 3.5) },
     { s0: finishS0 + 14, fn: (u) => tableTop(u, 5, 1.1, 3, 7) },
   );
+
+  // Ledge drops with a B-line: the main (left) lane rides off a sharp ledge,
+  // the right lane ramps down gently around it. Heights step up to 6 ft.
+  // The centerline feature is the A-line step; surface() lifts the B side.
+  const LEDGES = [
+    { s0: segStarts[2] + 25, h: 0.7, points: 40 },   // ~2.3 ft
+    { s0: segStarts[6] + 18, h: 1.2, points: 80 },   // ~4 ft
+    { s0: segStarts[8] + 38, h: 1.83, points: 150 }, // 6 ft
+  ];
+  LEDGES.forEach((L) => featureList.push({ s0: L.s0, fn: (u) => cliff(u, L.h, 1.2) }));
   const featureY = (sPos) => {
     let dy = 0;
     for (const f of featureList) dy += f.fn(sPos - f.s0);
@@ -94,7 +104,7 @@ export function buildTrack() {
     const bank = clamp(curv * 10, -0.42, 0.42) * shape; // radians, + = right turn (left edge raised)
 
     const dir = new THREE.Vector3(Math.sin(heading), 0, Math.cos(heading));
-    const right = new THREE.Vector3(dir.z, 0, -dir.x);
+    const right = new THREE.Vector3(-dir.z, 0, dir.x); // true rider's right (dir × up)
     samples.push({
       s, pos: new THREE.Vector3(x, y + featureY(s), z),
       heading, dir, right,
@@ -120,6 +130,7 @@ export function buildTrack() {
     samples,
     total,
     segStarts,
+    ledges: LEDGES,
     dropS: dropS0 + 16,
     finishS: total - 12,
     startS: 4,
@@ -142,6 +153,13 @@ export function buildTrack() {
       let y = lerp(a.pos.y, b.pos.y, f);
       y += -Math.tan(bank) * xPos;               // berm tilt
       y += 0.06 * Math.abs(bank) * xPos * xPos;  // berm dish
+      // B-line ride-arounds: the right lane ramps down where the left drops
+      for (const L of LEDGES) {
+        if (sPos > L.s0 - 1 && sPos < L.s0 + 15) {
+          const bLift = L.h * (smoothstep(L.s0, L.s0 + 1.2, sPos) - smoothstep(L.s0, L.s0 + 14, sPos));
+          y += bLift * smoothstep(0.4, 1.3, xPos);
+        }
+      }
       let rough = 0;
       if (type === SECTION.ROCKS) {
         const seg9 = this; // rough fades in/out across the section

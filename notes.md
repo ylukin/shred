@@ -154,3 +154,31 @@ Working notes for the 3D downhill mountain biking browser game. Appended as I go
   toggle enable/disable, baseline calibration, left/right steer values, drag
   correctly ignored in tilt mode, and a 2 s tilt-right during a live run moving
   the rider 5.6 m across the trail.
+
+## 2026-08-06 — Three progressive ledge drops with B-lines
+
+- Three ledge drops added: DROP 1 (0.7 m / ~2.3 ft, s≈106), DROP 2 (1.2 m /
+  ~4 ft, s≈271), DROP 3 (1.83 m / 6 ft, s≈395). Each has an A-line ledge on
+  the left ~60% of the trail and a smooth B-line ramp lane on the right that
+  rolls around the ledge — surface() is now lateral-aware: the centerline
+  feature is the sharp step, and the B side gets a lift term that turns it
+  into a 14 m ramp. The ribbon mesh (now 12 verts across) renders the split
+  automatically since it samples surface(s, x) per vertex.
+- Stick the landing on an A-line drop (clean landing, no crash/sketchy,
+  launched from the ledge zone on the drop side) → style bonus: +40/+80/+150.
+  Tracked per drop per run; popup "STUCK DROP N +pts".
+- Signage: red DROP N board left, yellow "B-LINE →" board right, ~12 m before
+  each ledge; dark wooden lip board on the edge and a wood face plank filling
+  the vertical drop face.
+- Autopilot extended: A-line by default, ?bline=1 rides all the ride-arounds.
+  Reference runs: A-line 78.0 s / style 309 / 3-for-3 drops; B-line 78.1 s /
+  clean. Nice risk-reward symmetry: same pace, drops pay style.
+- **Major bug found & fixed while testing**: the track-frame `right` vector
+  pointed to the rider's LEFT (wrong cross product sign), so keyboard/tilt
+  steering was visually inverted, and berms banked inside-up. Symmetric
+  autopilot tests never caught it — a hold-right-arrow screenshot did. Fixing
+  the vector flipped the trail ribbon's triangle winding (mesh went invisible
+  from above via backface culling), fixed by reversing the index order.
+- Also fixed: whip now only accumulates after 0.25 s of airtime, so steering
+  through rock-garden chatter can't wash you out; autopilot holds steering
+  neutral mid-air and brakes into the rock garden when off the clean line.

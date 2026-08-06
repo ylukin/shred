@@ -11,6 +11,7 @@ import * as TEX from './textures.js';
 
 const params = new URLSearchParams(location.search);
 const AUTO = params.has('auto');
+const AUTO_BLINE = params.has('bline'); // autopilot takes the ride-arounds
 const START_S = parseFloat(params.get('s') || '0') || 0;
 
 // ---------------------------------------------------------------------------
@@ -64,6 +65,7 @@ const P = {
   air: false, airTime: 0, whip: 0, styleBank: 0, style: 0,
   crashT: 0, offGrass: false,
   timeMs: 0, finished: false, started: false,
+  launchS: -99, launchX: 0, dropsDone: [],
 };
 let state = 'title'; // title | countdown | riding | finish
 let countdownT = 0;
@@ -76,6 +78,8 @@ function resetRun() {
   P.s = track.startS + START_S; P.x = 0; P.v = 0; P.vy = 0;
   P.air = false; P.airTime = 0; P.whip = 0; P.style = 0; P.styleBank = 0;
   P.crashT = 0; P.timeMs = 0; P.finished = false;
+  P.launchS = -99; P.launchX = 0;
+  P.dropsDone = track.ledges.map(() => false);
   marmot.reset(); eagle.reset(); confetti.stop();
   const surf = track.surface(P.s, 0);
   P.y = surf.y;
@@ -312,7 +316,8 @@ function physics(dt) {
 
   // longitudinal
   if (!P.air) {
-    let a = -GRAV * surf.grade * 1.35;     // gravity along slope, arcade-boosted
+    // grade clamped so the A-line ledge face doesn't slingshot B-line riders
+    let a = -GRAV * clamp(surf.grade, -0.4, 0.4) * 1.35;
     a -= 0.011 * P.v * P.v;                // aero drag
     a -= 0.5;                              // rolling resistance
     if (pedal && P.v < vCap) a += 2.9 * clamp(vCap - P.v, 0, 1); // cranks, tapering at cap
@@ -338,7 +343,8 @@ function physics(dt) {
     }
   } else {
     P.x += steer * 1.2 * dt;
-    P.whip = clamp(P.whip + steer * 3.2 * dt, -2.2, 2.2);
+    // whips only build on real airs — rock-garden chatter shouldn't wash you out
+    if (P.airTime > 0.25) P.whip = clamp(P.whip + steer * 3.2 * dt, -2.2, 2.2);
     if (steer === 0) P.whip = lerp(P.whip, 0, Math.min(1, dt * 3.2));
   }
 
@@ -377,6 +383,7 @@ function physics(dt) {
     if (ballistic > gyNow + 0.06 && P.vy > groundVy + 0.5) {
       P.air = true;
       P.airTime = 0;
+      P.launchS = P.s; P.launchX = P.x;
       P.y = ballistic;
       P.vy -= GRAV * dt;
       if (P.vy > 2.5) audio.jump();
@@ -389,6 +396,7 @@ function physics(dt) {
       P.vy = Math.max(P.vy, 0) + 4.6;
       P.air = true;
       P.airTime = 0;
+      P.launchS = P.s; P.launchX = P.x;
       P.y += 0.04;
       audio.jump();
     }
@@ -416,6 +424,16 @@ function physics(dt) {
         shake = Math.max(shake, 0.7);
       } else {
         audio.land(false);
+        // stuck the landing off a ledge drop (A-line only) => bonus points
+        const di = track.ledges.findIndex((L, i) => !P.dropsDone[i] &&
+          P.launchS > L.s0 - 4 && P.launchS < L.s0 + 3 && P.launchX < 1.0);
+        if (di >= 0) {
+          P.dropsDone[di] = true;
+          const pts = track.ledges[di].points;
+          P.styleBank += pts;
+          hud.popup(`STUCK DROP ${di + 1} +${pts}`, 'good');
+          audio.clean();
+        }
         if (P.airTime > 0.45) {
           const style = Math.round(P.airTime * 22 + whipAbs * 55);
           P.styleBank += style;
@@ -434,15 +452,22 @@ function physics(dt) {
 // ---------------------------------------------------------------------------
 // Autopilot (dev/testing: ?auto=1)
 function autopilotSteer() {
+  if (P.air) return 0; // hold steady in the air — steering there is a whip
   const surf = track.surface(P.s, P.x);
   let target = 0;
   if (surf.type === SECTION.ROCKS) target = track.rockLine(P.s + 4);
   const curv = track.curvAt(P.s + 8);
   if (surf.type === SECTION.BERM) target = clamp(-curv * 60, -2.2, 2.2); // inside line
+  for (const L of track.ledges) {
+    if (P.s > L.s0 - 30 && P.s < L.s0 + (AUTO_BLINE ? 16 : 5)) target = AUTO_BLINE ? 2.2 : -1.2;
+  }
   return clamp((target - P.x) * 0.8, -1, 1);
 }
 function autopilotBrake() {
-  return false;
+  // a sane rider scrubs speed entering the rock garden when off the clean line
+  const rocksS = track.segStarts[7];
+  return P.s > rocksS - 8 && P.s < rocksS + 25 && P.v > 8.5 &&
+    Math.abs(P.x - track.rockLine(P.s + 3)) > 0.8;
 }
 let lastHopS = -99;
 function autopilotHop(sPrev) {

@@ -28,8 +28,12 @@ the start of every run.
 Start gate → flow S-curves → big right berm → rollers → left berm → rock
 garden (there's a hidden clean line — watch the smooth dirt) → sweeper →
 three-tabletop jump line → wall berm → exposed ridge spine → THE DROP →
-two fast berms → finish kicker. Whip in the air for style points; land
-straight or eat dirt. Best time is saved locally.
+two fast berms → punch climb → finish kicker. Whip in the air for style
+points; land straight or eat dirt. Best time is saved locally.
+
+Three ledge drops (2.3 ft, 4 ft, 6 ft) are cut into the trail along the way:
+send the marked A-line ledge and stick the landing for +40/+80/+150 style
+points, or take the signed B-line ramp around any of them.
 
 ## Tech
 
