@@ -237,8 +237,8 @@ function makeDust() {
   return {
     update(dt) {
       // emit while grounded and moving
-      if (!P.air && P.v > 7 && state === 'riding') {
-        const emitN = P.v > 16 ? 3 : 1;
+      if (!P.air && P.v > 6 && state === 'riding') {
+        const emitN = P.v > 10 ? 3 : 1;
         for (let e = 0; e < emitN; e++) {
           const i = head = (head + 1) % N;
           const back = track.dirAt(P.s, tmpV).multiplyScalar(-0.7);
@@ -300,19 +300,27 @@ function physics(dt) {
 
   const surf = track.surface(P.s, P.x);
   const steer = AUTO ? autopilotSteer() : input.steer;
-  const tuck = AUTO ? true : input.tuck;
+  const pedal = AUTO ? true : input.pedal;
   const brake = AUTO ? autopilotBrake() : input.brake;
+
+  // Realistic top speed depends on the overall gradient (not jump lips):
+  // ~25 mph descending, ~16 mph on the flat, ~6 mph grinding uphill.
+  const bg = surf.baseGrade;
+  const capMph = bg < 0 ? lerp(16, 25, clamp(-bg / 0.06, 0, 1))
+                        : lerp(16, 6, clamp(bg / 0.06, 0, 1));
+  const vCap = capMph / 2.237;
 
   // longitudinal
   if (!P.air) {
     let a = -GRAV * surf.grade * 1.35;     // gravity along slope, arcade-boosted
     a -= 0.011 * P.v * P.v;                // aero drag
-    a -= tuck ? 0.15 : 0.55;               // rolling resistance (tuck = pump for speed)
-    if (tuck) a += 2.1;
+    a -= 0.5;                              // rolling resistance
+    if (pedal && P.v < vCap) a += 2.9 * clamp(vCap - P.v, 0, 1); // cranks, tapering at cap
     if (brake) a -= 11;
-    if (surf.rough > 0.05 && P.v > 12) a -= surf.rough * 15; // rocks eat speed
+    if (P.v > vCap) a -= Math.min((P.v - vCap) * 2.0, 3.5); // soft speed limit, keeps momentum on punches
+    if (surf.rough > 0.05 && P.v > 8) a -= surf.rough * 15; // rocks eat speed
     P.v = clamp(P.v + a * dt, 0, VMAX);
-    if (P.v < 2.5 && !brake) P.v = Math.min(2.5, P.v + 4 * dt); // auto-pedal from standstill
+    if (P.v < 2.2 && !brake) P.v = Math.min(2.2, P.v + 4 * dt); // never quite stall
   } else {
     P.v = clamp(P.v - 0.006 * P.v * P.v * dt, 0, VMAX);
   }
@@ -353,8 +361,8 @@ function physics(dt) {
 
   // rocks rattle
   if (!P.air && surf.rough > 0.08) {
-    shake = Math.max(shake, surf.rough * 1.6 * clamp(P.v / 14, 0.3, 1.4));
-    if (P.v > 19 && surf.rough > 0.2) crash('OVER THE BARS!');
+    shake = Math.max(shake, surf.rough * 1.6 * clamp(P.v / 9, 0.3, 1.4));
+    if (P.v > 11.5 && surf.rough > 0.25) crash('OVER THE BARS!');
   }
 
   // advance + vertical
@@ -452,7 +460,7 @@ let camInit = false;
 function updateCamera(dt) {
   const dir = track.dirAt(P.s, tmpV);
   const pos = tmpV2.copy(riderRig.group.position);
-  const back = 6.4 + clamp(P.v * 0.09, 0, 2.2) + (P.air ? 0.8 : 0);
+  const back = 6.4 + clamp(P.v * 0.16, 0, 2.2) + (P.air ? 0.8 : 0);
   const up = 2.6 + (P.air ? 0.5 : 0);
   tmpV3.copy(pos).addScaledVector(dir, -back);
   tmpV3.y = pos.y + up;
@@ -473,7 +481,7 @@ function updateCamera(dt) {
     shake = lerp(shake, 0, Math.min(1, dt * 6));
   }
   camera.lookAt(camLook);
-  const targetFov = 68 + clamp(P.v, 0, 30) * 0.55 + (P.air ? 4 : 0);
+  const targetFov = 68 + clamp(P.v, 0, 15) * 1.1 + (P.air ? 4 : 0);
   camera.fov = lerp(camera.fov, targetFov, Math.min(1, dt * 4));
   camera.updateProjectionMatrix();
 
@@ -496,7 +504,7 @@ function placeRider(dt) {
     speed: P.v,
     steer: steerVisual,
     grounded: !P.air,
-    crouch: (input.tuck || AUTO) && !P.air ? 1 : P.air ? 0.65 : 0.15,
+    crouch: (input.pedal || AUTO) && !P.air ? 1 : P.air ? 0.65 : 0.15,
     whip: P.whip,
     pitch: P.air ? clamp(-P.vy * 0.045, -0.5, 0.35) : clamp(-surf.grade * 0.9, -0.45, 0.5),
     bank: surf.bank,
@@ -538,7 +546,7 @@ function finishRun() {
     localStorage.setItem('shred_best', String(bestMs));
     hud.setBest(bestMs);
   }
-  const medal = total < 68000 ? 'GOLD' : total < 80000 ? 'SILVER' : total < 95000 ? 'BRONZE' : null;
+  const medal = total < 85000 ? 'GOLD' : total < 100000 ? 'SILVER' : total < 120000 ? 'BRONZE' : null;
   document.getElementById('res-time').textContent = formatTime(total);
   document.getElementById('res-best').textContent = (isBest ? 'NEW BEST!' : `BEST ${formatTime(bestMs)}`);
   document.getElementById('res-best').className = isBest ? 'res-new-best' : '';
@@ -583,7 +591,7 @@ function frame(now) {
     if (input.takeRestart()) { startGame(); return; }
     P.timeMs += dt * 1000;
     // sub-step physics for stability at high speed
-    const steps = P.v > 18 ? 2 : 1;
+    const steps = P.v > 10 ? 2 : 1;
     for (let i = 0; i < steps; i++) physics(dt / steps);
     if (P.s >= track.finishS) finishRun();
   }
@@ -611,7 +619,7 @@ function frame(now) {
       timeMs: P.timeMs,
       progress: (P.s - track.startS) / (track.finishS - track.startS),
       mph: P.v * 2.237,
-      gear: clamp(1 + Math.floor(P.v / 5), 1, 6),
+      gear: clamp(1 + Math.floor(P.v / 2), 1, 6),
       s: P.s,
       style: P.styleBank,
     });
@@ -636,7 +644,7 @@ placeRider(0.016);
 requestAnimationFrame(frame);
 
 // Debug hooks for automated testing
-window.__inputProbe = () => ({ steer: input.steer, brake: input.brake, tuck: input.tuck });
+window.__inputProbe = () => ({ steer: input.steer, brake: input.brake, pedal: input.pedal });
 window.__shred = {
   P, track, startGame,
   get state() { return state; },

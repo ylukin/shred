@@ -82,7 +82,7 @@ export function createAudio() {
     // continuous layers, call each frame
     ride(speed, grounded, rough) {
       if (!ctx) return;
-      const v = clamp(speed / 28, 0, 1);
+      const v = clamp(speed / 13, 0, 1);
       rollGain.gain.value = grounded ? 0.05 + v * 0.28 + (rough ? 0.25 : 0) : 0.01;
       rollFilter.frequency.value = 120 + v * 500 + (rough ? 300 : 0);
       windGain.gain.value = v * v * 0.22 + (grounded ? 0 : 0.06);

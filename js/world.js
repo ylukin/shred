@@ -376,7 +376,7 @@ export function buildWorld(scene, track) {
     const taped = [];
     for (const [segIdx, side] of [[3, -1], [5, 1], [9, -1], [9, 1], [10, -1], [13, 1], [14, -1]]) {
       const s0 = track.segStarts[segIdx];
-      const len = [26,55,45,42,45,40,34,70,55,105,48,55,42,50,50,68][segIdx];
+      const len = [26,55,45,42,45,40,34,70,55,105,48,55,42,50,50,14,68][segIdx];
       taped.push([s0 + 3, s0 + len - 3, side]);
     }
     for (const [sA, sB, side] of taped) {

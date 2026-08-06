@@ -4,7 +4,7 @@ import { clamp } from './util.js';
 
 export function createInput() {
   const state = {
-    steer: 0, brake: false, tuck: false,
+    steer: 0, brake: false,
     jumpQueued: false, restartQueued: false,
     touchActive: false,
   };
@@ -16,7 +16,7 @@ export function createInput() {
     if (keys.has('ArrowRight') || keys.has('KeyD')) s += 1;
     if (!state.touchActive) state.steer = s;
     state.brakeKey = keys.has('ArrowDown') || keys.has('KeyS');
-    state.tuckKey = keys.has('ArrowUp') || keys.has('KeyW') || keys.has('ShiftLeft');
+    state.pedalKey = keys.has('ArrowUp') || keys.has('KeyW') || keys.has('ShiftLeft');
   }
 
   window.addEventListener('keydown', (e) => {
@@ -33,6 +33,7 @@ export function createInput() {
   // ---- touch: drag anywhere to steer, on-screen buttons for the rest ----
   const steerZone = document.getElementById('touch-steer');
   const btnJump = document.getElementById('btn-jump');
+  const btnPedal = document.getElementById('btn-pedal');
   const btnBrake = document.getElementById('btn-brake');
 
   let steerTouchId = null, steerOriginX = 0;
@@ -81,14 +82,15 @@ export function createInput() {
     el.addEventListener('mouseup', () => { up?.(); el.classList.remove('pressed'); });
     el.addEventListener('mouseleave', () => { up?.(); el.classList.remove('pressed'); });
   }
-  bindButton(btnJump, () => { state.jumpQueued = true; state.tuckTouch = true; }, () => { state.tuckTouch = false; });
+  bindButton(btnJump, () => { state.jumpQueued = true; });
+  bindButton(btnPedal, () => { state.pedalTouch = true; }, () => { state.pedalTouch = false; });
   bindButton(btnBrake, () => { state.brakeTouch = true; }, () => { state.brakeTouch = false; });
 
   return {
     state,
     get steer() { return state.steer; },
     get brake() { return !!(state.brakeKey || state.brakeTouch); },
-    get tuck() { return !!(state.tuckKey || state.tuckTouch); },
+    get pedal() { return !!(state.pedalKey || state.pedalTouch); },
     takeJump() { const j = state.jumpQueued; state.jumpQueued = false; return j; },
     takeRestart() { const r = state.restartQueued; state.restartQueued = false; return r; },
   };

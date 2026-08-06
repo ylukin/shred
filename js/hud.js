@@ -84,7 +84,7 @@ export function createHUD(track) {
     sctx.lineWidth = 7;
     sctx.lineCap = 'round';
     sctx.stroke();
-    const t = clamp(mph / 60, 0, 1);
+    const t = clamp(mph / 30, 0, 1);
     if (t > 0.005) {
       sctx.beginPath();
       sctx.arc(cx2, cy2, r, a0, a0 + (a1 - a0) * t);

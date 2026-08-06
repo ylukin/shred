@@ -28,6 +28,7 @@ const SEGMENTS = [
   { len: 42, c0: -0.005, c1: -0.005, grade: -0.06, w: 3.4, type: SECTION.DROP },  // the drop
   { len: 50, c0: -0.040, c1: -0.040, grade: -0.06, w: 3.8, type: SECTION.BERM },
   { len: 50, c0: 0.045, c1: 0.045, grade: -0.06, w: 3.8, type: SECTION.BERM },
+  { len: 14, c0: 0.004, c1: -0.004, grade: 0.04, w: 3.4, type: SECTION.FLOW },   // punch climb
   { len: 68, c0: -0.004, c1: 0.004, grade: -0.075, w: 3.6, type: SECTION.FINISH }, // kicker + arch
 ];
 
@@ -66,7 +67,7 @@ export function buildTrack() {
   const jumpsS0 = segStarts[9];
   const rollersS0 = segStarts[4];
   const dropS0 = segStarts[12];
-  const finishS0 = segStarts[15];
+  const finishS0 = segStarts[16];
   featureList.push(
     { s0: rollersS0 + 8, fn: (u) => roller(u, 9, 0.85, 3) },
     { s0: jumpsS0 + 10, fn: (u) => tableTop(u, 7, 1.7, 5, 9) },
@@ -98,6 +99,7 @@ export function buildTrack() {
       s, pos: new THREE.Vector3(x, y + featureY(s), z),
       heading, dir, right,
       bank, width: seg.w, type: seg.type, curv,
+      baseGrade: seg.grade * 1.5, // segment grade only — jump lips excluded
     });
 
     heading -= curv * DS; // + curvature turns right (heading decreases)
@@ -135,6 +137,7 @@ export function buildTrack() {
       const bank = lerp(a.bank, b.bank, f);
       const width = lerp(a.width, b.width, f);
       const grade = lerp(a.grade, b.grade, f);
+      const baseGrade = lerp(a.baseGrade, b.baseGrade, f);
       const type = f < 0.5 ? a.type : b.type;
       let y = lerp(a.pos.y, b.pos.y, f);
       y += -Math.tan(bank) * xPos;               // berm tilt
@@ -149,7 +152,7 @@ export function buildTrack() {
         rough = 0.34 * fade * lineFactor;
         y += rough * (rockNoise.fbm(sPos * 0.7, xPos * 0.9, 3) - 0.5) * 2;
       }
-      return { y, bank, width, grade, type, rough };
+      return { y, bank, width, grade, baseGrade, type, rough };
     },
 
     // World position for track coords.

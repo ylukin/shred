@@ -116,3 +116,23 @@ Working notes for the 3D downhill mountain biking browser game. Appended as I go
   photographic gravel with knobby tread marks, hillsides get real alpine turf
   with wildflowers, boulders get lichened granite. Fallbacks stay in the code
   for offline/file:// use.
+
+## 2026-08-06 — Pedal button + realistic speed model
+
+- New PEDAL control (W / ↑ / Shift, or a dedicated PEDAL touch button between
+  SEND and the speedo): +2.9 m/s² of crank power, tapering off at the cap.
+  SEND is now purely bunny hop on touch.
+- Gradient-based top speed, per request: ~25 mph descending, ~16 mph flat,
+  ~6 mph climbing (smoothly interpolated from the segment's base grade — jump
+  lips and rollers deliberately excluded so a takeoff ramp doesn't count as
+  "uphill"). Over-cap speed bleeds off softly (max 3.5 m/s² decel) so momentum
+  still carries into short rises.
+- Added a 14 m punch climb between the last berm and the finish straight so the
+  uphill cap actually features in gameplay — autopilot crests it at ~5 mph.
+- Retuned everything downstream of the slower speeds: speedo dial now 0–30 mph,
+  gears 1–6 over the new range, rock-garden rattle/crash thresholds, camera FOV
+  and follow distance, audio speed normalization, dust emission, physics
+  substeps, medal thresholds (gold < 1:25, silver < 1:40, bronze < 2:00 — new
+  autopilot reference run is 1:17.6, clean, all sections).
+- Course is now 834 m; world.js trackside-tape segment table updated for the
+  inserted segment.

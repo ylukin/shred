@@ -10,10 +10,13 @@ the jumps, conquer the mountain. See `game.md` for the design brief.
 | Action | Keyboard | Touch |
 | --- | --- | --- |
 | Steer | A / D or ← → | drag anywhere |
-| Tuck / pump (speed) | W / ↑ / Shift | hold SEND |
+| Pedal (speed) | W / ↑ / Shift | hold PEDAL |
 | Bunny hop | Space | tap SEND |
 | Brake | S / ↓ | hold BRAKE |
 | Restart run | R | — |
+
+Top speed is gradient-realistic: ~25 mph descending, ~16 mph on the flat,
+~6 mph grinding uphill — pedal hard into the punch climb before the finish.
 
 ## The course
 
