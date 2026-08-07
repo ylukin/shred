@@ -182,3 +182,11 @@ Working notes for the 3D downhill mountain biking browser game. Appended as I go
 - Also fixed: whip now only accumulates after 0.25 s of airtime, so steering
   through rock-garden chatter can't wash you out; autopilot holds steering
   neutral mid-air and brakes into the rock garden when off the clean line.
+
+## 2026-08-06 — README refresh
+
+- Rewrote README to cover everything now in the game: full control table
+  (drag/tilt/PEDAL/SEND/BRAKE), riding model (gradient speed caps, pedaling,
+  hops, whips, crash recovery), course guide with the three ledge drops and
+  A/B-line choice, scoring (medals + style economy), HUD tour, extras, tech
+  notes, and the autopilot/testing query params.
